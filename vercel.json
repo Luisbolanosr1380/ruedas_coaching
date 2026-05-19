@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/rueda/:token", "destination": "/index.html" }
+  ]
+}
