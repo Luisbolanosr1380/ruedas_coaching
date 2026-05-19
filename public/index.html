@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rueda de Coaching</title>
+<title>Rueda de Coaching · Coach Mónica Nájera</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -28,10 +28,50 @@
     -webkit-font-smoothing: antialiased;
     line-height: 1.6;
   }
+
+  /* ---------- Brand bar ---------- */
+  .brand-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+  }
+  .brand-bar-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+  .brand-tag {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .brand-mark {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--color-principal);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+  .brand-left { display: flex; align-items: center; gap: 12px; }
+
   .container {
     max-width: 980px;
     margin: 0 auto;
-    padding: 32px 24px 64px;
+    padding: 32px 24px 48px;
   }
 
   /* ---------- Loading ---------- */
@@ -40,7 +80,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 60vh;
+    min-height: 50vh;
     color: var(--text-secondary);
   }
   .spinner {
@@ -54,9 +94,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ---------- Header ---------- */
-  .header {
-    margin-bottom: 32px;
-  }
+  .header { margin-bottom: 32px; }
   .badge {
     display: inline-block;
     font-size: 12px;
@@ -89,19 +127,10 @@
   }
 
   /* ---------- Main grid ---------- */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
   @media (min-width: 820px) {
-    .grid {
-      grid-template-columns: 1fr 1.05fr;
-      gap: 32px;
-      align-items: start;
-    }
+    .grid { grid-template-columns: 1fr 1.05fr; gap: 32px; align-items: start; }
   }
-
   .card {
     background: var(--surface);
     border-radius: 16px;
@@ -127,11 +156,7 @@
     gap: 4px 12px;
     align-items: center;
   }
-  .slider-label {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-primary);
-  }
+  .slider-label { font-size: 14px; font-weight: 500; color: var(--text-primary); }
   .slider-value {
     font-size: 14px;
     font-weight: 600;
@@ -177,19 +202,10 @@
     box-shadow: 0 0 0 1px var(--color-principal);
   }
 
-  /* ---------- Radar visualization ---------- */
-  .radar-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+  /* ---------- Radar ---------- */
+  .radar-wrap { display: flex; flex-direction: column; align-items: center; }
   #radar { width: 100%; max-width: 380px; height: auto; }
-  .stats {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-    width: 100%;
-  }
+  .stats { display: flex; gap: 12px; margin-top: 20px; width: 100%; }
   .stat {
     flex: 1;
     text-align: center;
@@ -205,20 +221,11 @@
     margin-bottom: 4px;
     font-weight: 500;
   }
-  .stat-value {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
+  .stat-value { font-size: 18px; font-weight: 600; color: var(--text-primary); }
   .stat-value.small { font-size: 13px; line-height: 1.3; }
 
   /* ---------- Reflections ---------- */
-  .reflexiones {
-    margin-top: 32px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
+  .reflexiones { margin-top: 32px; display: flex; flex-direction: column; gap: 20px; }
   .reflexion-item label {
     display: block;
     font-size: 14px;
@@ -282,23 +289,42 @@
     text-align: center;
     box-shadow: var(--shadow);
   }
-  .estado-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    display: block;
+  .estado-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+  .estado-titulo { font-size: 22px; font-weight: 600; margin: 0 0 8px; }
+  .estado-mensaje { color: var(--text-secondary); margin: 0; }
+
+  /* ---------- Footer ---------- */
+  .footer {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
   }
-  .estado-titulo {
-    font-size: 22px;
-    font-weight: 600;
-    margin: 0 0 8px;
+  .footer .powered {
+    margin-top: 4px;
+    font-size: 11px;
+    letter-spacing: 0.4px;
   }
-  .estado-mensaje {
-    color: var(--text-secondary);
-    margin: 0;
-  }
+  .footer .powered strong { color: var(--text-secondary); font-weight: 600; }
 </style>
 </head>
 <body>
+
+<header class="brand-bar">
+  <div class="brand-bar-inner">
+    <div class="brand-left">
+      <div class="brand-mark">MN</div>
+      <div>
+        <div class="brand-name">Coach Mónica Nájera</div>
+        <div class="brand-tag">Coaching y desarrollo profesional</div>
+      </div>
+    </div>
+  </div>
+</header>
+
 <div class="container" id="app">
   <div class="loading">
     <div class="spinner"></div>
@@ -306,12 +332,20 @@
   </div>
 </div>
 
+<footer class="footer">
+  <div>© <span id="year"></span> Coach Mónica Nájera</div>
+  <div class="powered">Powered by <strong>Talent TrackAI</strong></div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
 <script>
 (function() {
   const app = document.getElementById('app');
   let state = { config: null, valores: {}, ruedaId: null };
 
-  // Extraer token de la URL: /rueda/XXXXX  o  ?token=XXXXX
   function getToken() {
     const pathMatch = window.location.pathname.match(/\/rueda\/(.+)$/);
     if (pathMatch) return decodeURIComponent(pathMatch[1]);
@@ -427,7 +461,7 @@
       ${reflexionesHtml}
       <div class="submit-wrap">
         <button class="btn-submit" id="enviar">Enviar mi rueda</button>
-        <p class="submit-hint">Recibirás una copia y tu coach analizará los resultados.</p>
+        <p class="submit-hint">Coach Mónica analizará los resultados y se pondrá en contacto contigo.</p>
       </div>`;
 
     document.querySelectorAll('input[type="range"]').forEach(input => {
@@ -450,13 +484,7 @@
     const cx = 180, cy = 180, maxR = 110;
     const color = state.config.colorPrincipal;
 
-    // Para escala invertida (estrés), interpretar visualmente al revés:
-    // en estrés un 10 es "malo" pero igual lo mostramos como 10 en la rueda
-    // (el coach lee la rueda llena = mucho estrés)
-    const valorParaRadar = (v) => v;
-
     let html = '';
-    // Anillos guía
     [2, 4, 6, 8, 10].forEach(level => {
       const r = (level / 10) * maxR;
       const pts = [];
@@ -468,16 +496,14 @@
       html += `<polygon points="${pts.join(' ')}" fill="none" stroke="#000" stroke-opacity="${opacity}" stroke-width="0.5" />`;
     });
 
-    // Ejes
     for (let i = 0; i < n; i++) {
       const a = (Math.PI * 2 * i) / n - Math.PI / 2;
       html += `<line x1="${cx}" y1="${cy}" x2="${(cx + Math.cos(a) * maxR).toFixed(1)}" y2="${(cy + Math.sin(a) * maxR).toFixed(1)}" stroke="#000" stroke-opacity="0.12" stroke-width="0.5" />`;
     }
 
-    // Polígono de datos
     const dataPts = segs.map((s, i) => {
       const a = (Math.PI * 2 * i) / n - Math.PI / 2;
-      const v = valorParaRadar(state.valores[s.indice] || 1);
+      const v = state.valores[s.indice] || 1;
       const r = (v / 10) * maxR;
       return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
     });
@@ -486,7 +512,6 @@
       html += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="${color}" stroke="#fff" stroke-width="1.5" />`;
     });
 
-    // Etiquetas
     for (let i = 0; i < n; i++) {
       const a = (Math.PI * 2 * i) / n - Math.PI / 2;
       const lr = maxR + 26;
@@ -510,12 +535,10 @@
 
     svg.innerHTML = html;
 
-    // Stats
     const vals = Object.values(state.valores);
     const avg = vals.reduce((s, v) => s + v, 0) / vals.length;
     document.getElementById('avg').textContent = avg.toFixed(1);
 
-    // Encontrar segmento crítico
     let critico = segs[0];
     let valorCritico = state.valores[segs[0].indice];
     segs.forEach(s => {
@@ -554,7 +577,7 @@
       });
       const data = await resp.json();
       if (!resp.ok) throw new Error(data.error || 'Error al enviar');
-      mostrarMensaje('✓', '¡Listo!', 'Recibimos tus respuestas. Tu coach las revisará y se pondrá en contacto para conversar sobre los resultados.');
+      mostrarMensaje('✓', '¡Listo!', 'Recibimos tus respuestas. Coach Mónica las revisará y se pondrá en contacto para conversar sobre los resultados.');
     } catch (e) {
       btn.disabled = false;
       btn.textContent = 'Enviar mi rueda';
