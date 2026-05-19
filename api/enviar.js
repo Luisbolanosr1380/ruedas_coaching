@@ -59,23 +59,24 @@ export default async function handler(req, res) {
       console.error("Error actualizando Airtable:", errText);
       return res.status(500).json({ error: "Error guardando los datos" });
     }
-
-    // Le devolvemos OK al cliente INMEDIATAMENTE — la generación del PDF
-    // sigue corriendo en background para no hacerlo esperar
-    res.status(200).json({ ok: true });
   } catch (err) {
     console.error("Error guardando:", err);
     return res.status(500).json({ error: "Error inesperado del servidor" });
   }
 
-  // ============ PASO 2: Generar PDF en background ============
-  // (solo si PDF_API_KEY está configurada — si no, se omite silenciosamente)
+  // ============ PASO 2: Generar PDF ============
+  // Importante: NO respondemos aún al cliente. Esperamos a que el PDF
+  // termine (o falle), así Vercel mantiene la función viva.
+  // Si respondemos antes, Vercel mata el proceso y el PDF nunca se genera.
+
   if (!PDF_API_KEY) {
     console.log("PDF_API_KEY no configurada, omitiendo generación de PDF");
-    return;
+    return res.status(200).json({ ok: true });
   }
 
   try {
+    console.log("Iniciando generación de PDF para rueda:", ruedaId);
+
     // Re-leer el registro para obtener cliente, tipo de rueda, fecha, etc.
     const ruedaResp = await fetch(
       `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/Ruedas/${ruedaId}`,
@@ -117,7 +118,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // Datos para el PDF
     const fechaEnvio = ruedaData.fields["Fecha de envío"]
       ? new Date(ruedaData.fields["Fecha de envío"])
       : new Date();
@@ -138,7 +138,6 @@ export default async function handler(req, res) {
       r5: ruedaData.fields["Reflexión_5_Impacto"] || ""
     };
 
-    // Generar HTML del PDF
     const html = generarHtmlPdf({
       nombreCliente,
       tipoRueda,
@@ -153,6 +152,7 @@ export default async function handler(req, res) {
     });
 
     // Llamar a PDFShift
+    console.log("Llamando a PDFShift...");
     const pdfResp = await fetch("https://api.pdfshift.io/v3/convert/pdf", {
       method: "POST",
       headers: {
@@ -169,15 +169,14 @@ export default async function handler(req, res) {
 
     if (!pdfResp.ok) {
       const err = await pdfResp.text();
-      console.error("Error generando PDF:", err);
-      return;
+      console.error("Error generando PDF en PDFShift:", err);
+      return res.status(200).json({ ok: true, pdfError: true });
     }
 
     const pdfBuffer = await pdfResp.arrayBuffer();
     const pdfBase64 = Buffer.from(pdfBuffer).toString("base64");
+    console.log("PDF generado, tamaño:", pdfBuffer.byteLength, "bytes");
 
-    // Subir el PDF a Airtable como attachment usando el endpoint de upload
-    // Necesitamos generar un data URL temporal para que Airtable lo descargue
     const fileName = `Rueda-${tipoRueda}-${nombreCliente.replace(/\s+/g, "_")}-${fechaEnvio.toISOString().slice(0,10)}.pdf`;
 
     const uploadResp = await fetch(
@@ -196,11 +195,14 @@ export default async function handler(req, res) {
     if (!uploadResp.ok) {
       const err = await uploadResp.text();
       console.error("Error subiendo PDF a Airtable:", err);
-    } else {
-      console.log("PDF adjuntado correctamente:", fileName);
+      return res.status(200).json({ ok: true, uploadError: true });
     }
+
+    console.log("PDF adjuntado correctamente:", fileName);
+    return res.status(200).json({ ok: true });
   } catch (err) {
     console.error("Error en generación de PDF:", err);
+    return res.status(200).json({ ok: true, pdfError: true });
   }
 }
 
@@ -212,7 +214,6 @@ function generarHtmlPdf(data) {
     reflexiones
   } = data;
 
-  // Calcular puntos del radar SVG
   const n = segmentos.length;
   const cx = 250, cy = 250, maxR = 170;
 
@@ -305,10 +306,37 @@ function generarHtmlPdf(data) {
     padding: 0;
     line-height: 1.5;
   }
+
+  /* ----- Brand header ----- */
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #EAEAE5;
+    margin-bottom: 22px;
+  }
+  .brand-mark {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: ${colorPrincipal};
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.6px;
+  }
+  .brand-text { line-height: 1.3; }
+  .brand-name { font-size: 14px; font-weight: 700; color: #1A1A1A; }
+  .brand-sub { font-size: 11px; color: #8A8A8A; font-weight: 500; }
+
+  /* ----- Header ----- */
   .header {
     border-bottom: 3px solid ${colorPrincipal};
-    padding-bottom: 20px;
-    margin-bottom: 30px;
+    padding-bottom: 18px;
+    margin-bottom: 26px;
   }
   .header .badge {
     display: inline-block;
@@ -326,10 +354,11 @@ function generarHtmlPdf(data) {
   .header .meta { font-size: 13px; color: #595959; margin: 0; }
   .meta strong { color: #1A1A1A; font-weight: 600; }
 
+  /* ----- Stats ----- */
   .stats {
     display: flex;
     gap: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
   }
   .stat {
     flex: 1;
@@ -346,17 +375,11 @@ function generarHtmlPdf(data) {
     margin-bottom: 4px;
     font-weight: 600;
   }
-  .stat-value {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1A1A1A;
-  }
+  .stat-value { font-size: 18px; font-weight: 700; color: #1A1A1A; }
   .stat-value.small { font-size: 13px; line-height: 1.3; }
 
-  .seccion {
-    margin-bottom: 28px;
-    page-break-inside: avoid;
-  }
+  /* ----- Secciones ----- */
+  .seccion { margin-bottom: 26px; page-break-inside: avoid; }
   .seccion-titulo {
     font-size: 11px;
     text-transform: uppercase;
@@ -382,17 +405,42 @@ function generarHtmlPdf(data) {
     background: #FFFFFF;
   }
 
+  /* ----- Footer ----- */
   .footer {
-    margin-top: 40px;
-    padding-top: 16px;
+    margin-top: 36px;
+    padding-top: 14px;
     border-top: 1px solid #EAEAE5;
+    text-align: center;
+  }
+  .footer .line1 {
+    font-size: 11px;
+    color: #595959;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .footer .line2 {
     font-size: 10px;
     color: #8A8A8A;
-    text-align: center;
+    letter-spacing: 0.4px;
+  }
+  .footer .line2 strong { color: #595959; font-weight: 600; }
+  .footer .line3 {
+    font-size: 9px;
+    color: #B0B0AA;
+    margin-top: 4px;
+    font-style: italic;
   }
 </style>
 </head>
 <body>
+
+<div class="brand">
+  <div class="brand-mark">MN</div>
+  <div class="brand-text">
+    <div class="brand-name">Coach Mónica Nájera</div>
+    <div class="brand-sub">Coaching y desarrollo profesional</div>
+  </div>
+</div>
 
 <div class="header">
   <span class="badge">Rueda de ${escapeHtml(tipoRueda)}</span>
@@ -429,7 +477,7 @@ function generarHtmlPdf(data) {
   ${notaEscala}
 </div>
 
-<div class="seccion" style="page-break-before: auto;">
+<div class="seccion">
   <h2 class="seccion-titulo">Puntuaciones detalladas</h2>
   <table class="puntuaciones">
     ${segmentos.map(filaPuntuacion).join("")}
@@ -446,7 +494,9 @@ function generarHtmlPdf(data) {
 </div>
 
 <div class="footer">
-  Documento generado automáticamente • Material de coaching confidencial
+  <div class="line1">Coach Mónica Nájera</div>
+  <div class="line2">Powered by <strong>Talent TrackAI</strong></div>
+  <div class="line3">Material de coaching confidencial</div>
 </div>
 
 </body>
